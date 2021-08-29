@@ -65,7 +65,7 @@ import DoubleMulti from "@/components/DoubleMulti.vue";
 import TrueFalse from "@/components/TrueFalse.vue";
 import AnswerProcess from "@/components/AnswerProcess.vue";
 import { GET, POST } from "@/lib/fetch";
-import { Modal } from "ant-design-vue";
+import { Modal, message } from "ant-design-vue";
 
 export default {
   name: "Answer",
@@ -107,8 +107,8 @@ export default {
     },
     remain: function () {
       return Math.max(
-        this.exam.endAt -
-          Math.max(this.exam.startAt, this.now - (this.sum || 0)),
+        +this.exam.endAt -
+          Math.max(+this.exam.startAt, +this.now - (+this.sum || 0)),
         0
       );
       // Math.max(this.exam.endAt - this.exam.startAt - this.sum - (this.now - (this.start || 0)), 0)
@@ -172,7 +172,10 @@ export default {
           data: JSON.parse(JSON.stringify(this.paper)),
           exam: this.exam.id,
         }).then(() => {
+          // #TODO 检查返回结果
           this.backuping = false;
+        }).catch((e) => {
+          message.show('自动备份出现错误！请联系监考老师')
         });
       } else {
         return Promise.resolve();

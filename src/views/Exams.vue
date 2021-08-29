@@ -7,21 +7,21 @@
       <a-tab-pane tab="随堂测验" key="1">
         <ExamList :exams="inclass" :now="currTime" />
       </a-tab-pane>
-      <a-tab-pane tab="历史记录" key="3">
+      <!-- <a-tab-pane tab="历史记录" key="3">
         <HistoryList :exams="history" :now="currTime" />
-      </a-tab-pane>
+      </a-tab-pane> -->
     </a-tabs>
   </div>
 </template>
 <script>
 import ExamList from "@/components/ExamList.vue";
-import HistoryList from "@/components/HistoryList.vue";
+// import HistoryList from "@/components/HistoryList.vue";
 import arrayDivider from "@/lib/arrayDivider";
 import { GET } from "@/lib/fetch";
 export default {
   components: {
     ExamList,
-    HistoryList,
+    // HistoryList,
   },
   created() {
     this.init();
