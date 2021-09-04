@@ -65,7 +65,7 @@ import DoubleMulti from "@/components/DoubleMulti.vue";
 import TrueFalse from "@/components/TrueFalse.vue";
 import AnswerProcess from "@/components/AnswerProcess.vue";
 import { GET, POST } from "@/lib/fetch";
-import { Modal, message } from "ant-design-vue";
+import { Modal, notification } from "ant-design-vue";
 
 export default {
   name: "Answer",
@@ -130,7 +130,7 @@ export default {
       exam: {},
       unSaveSteps: 0,
       now: 0,
-      startAt: Date.now()
+      startAt: Date.now(),
     };
   },
   watch: {
@@ -171,12 +171,17 @@ export default {
         return POST("/client/backup", {
           data: JSON.parse(JSON.stringify(this.paper)),
           exam: this.exam.id,
-        }).then(() => {
-          // #TODO 检查返回结果
-          this.backuping = false;
-        }).catch((e) => {
-          message.show('自动备份出现错误！请联系监考老师')
-        });
+        })
+          .then(() => {
+            // #TODO 检查返回结果
+            this.backuping = false;
+          })
+          .catch((e) => {
+            notification.error({
+              message: "自动备份出现错误！请联系监考老师",
+              duration: null,
+            });
+          });
       } else {
         return Promise.resolve();
       }
@@ -195,12 +200,22 @@ export default {
     // console.log(this.$route.query);
     // 打散逻辑
     setTimeout(async () => {
-      const [res, { data: serverTime = Date.now() }] = await Promise.all([
+      const [res, { data: serverTime }] = await Promise.all([
         GET("/client/paper", {
           id: this.$route.query.id,
         }),
         GET("/client/time"),
       ]);
+
+      if (!serverTime) {
+        Notification.error({
+          message: "获取当前时间失败，请重新进入考试",
+          duration: 4000,
+        });
+        setTimeout(() => {
+          this.$router.go(-1)
+        }, 2000)
+      }
 
       if (res.exam) {
         if (serverTime > res.exam.endAt) {
@@ -219,7 +234,7 @@ export default {
             },
           });
           return;
-        } else if(serverTime < res.exam.startAt) {
+        } else if (serverTime < res.exam.startAt) {
           const modal = Modal.info();
           this.loading = false;
           modal.update({
@@ -234,7 +249,7 @@ export default {
               });
             },
           });
-          return 
+          return;
         }
 
         // console.log(res.current);
